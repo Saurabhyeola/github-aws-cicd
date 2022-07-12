@@ -1,5 +1,21 @@
 AWSTemplateFormatVersion: 2010-09-09
 Description: CI/CD pipeline for GitHub projects
+Parameters:
+  GitHubOwner:
+    Type: String
+    AllowedPattern: '[A-Za-z0-9-]+'
+    Default: Saurabhyeola
+
+  GitHubRepository:
+    Type: String
+    AllowedPattern: '[A-Za-z0-9-]+'
+    Default: github-aws-cicd
+
+  GitHubBranch:
+    Type: String
+    AllowedPattern: '[A-Za-z0-9-]+'
+    Default: main
+
 Resources:
   CodeBuildServiceRole:
     Type: 'AWS::IAM::Role'
@@ -60,7 +76,7 @@ Resources:
         - Arn
       Source:
         Type: GITHUB
-        Location: !Sub 'https://github.com/Saurabhyeola/github-aws-cicd.git'
+        Location: !Sub 'https://github.com/${GitHubOwner}/${GitHubRepository}.git'
         BuildSpec: buildspec.yaml
         Auth:
           Type: OAUTH
@@ -72,10 +88,9 @@ Resources:
         FilterGroups:
           - - Type: EVENT
               Pattern: >-
-                PULL_REQUEST_CREATED, PULL_REQUEST_UPDATED,
-                PULL_REQUEST_REOPENED
+                PULL_REQUEST_CREATED, PULL_REQUEST_UPDATED, PULL_REQUEST_REOPENED
             - Type: BASE_REF
-              Pattern: !Sub ^refs/heads/main$
+              Pattern: !Sub ^refs/heads/${GitHubBranch}$'
       Environment:
         Type: LINUX_CONTAINER
         ComputeType: BUILD_GENERAL1_SMALL
